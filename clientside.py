@@ -16,7 +16,7 @@ def on_message(client, userdata, message): #called when a message has been recie
         else:
             chat = input("Enter Message: ")
             client.publish(publishtopic, chat)
-
+            
 def on_subscribe(client, userdata, mid, granted_qos):
     print("Subscribed: ")
 
@@ -40,17 +40,14 @@ client.connect("mqtt.eclipseprojects.io", 1883, 60)
 
 time.sleep(1)
 
-publishtopic = "Username1"
-subtopic = "Username2"
+publishtopic = "Username2"
+subtopic = "Username1"
 FLAG = True
+chat = None
 
 client.loop_start()
 client.subscribe(subtopic)
 
-time.sleep(1)
-
-chat = input("Enter Message: ")
-client.publish(publishtopic, chat)
 while True:
     if FLAG == False or chat == "Stop" or chat == "stop":
         break
