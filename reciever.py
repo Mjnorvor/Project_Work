@@ -1,17 +1,30 @@
 import paho.mqtt.client as mqtt
-# import PySimpleGUI as sg
 
+# MQTT broker settings
+broker_address = "mqtt.eclipse.org"
+port = 1883
+
+# Unique client ID for each user
+client_id = "client2"
+
+# Callback when the client connects to the broker
 def on_connect(client, userdata, flags, rc):
-    print("Connected with result code "+str(rc))
-    client.subscribe(userdata)
+    print("Connected with result code " + str(rc))
+    client.subscribe("chatroom")
 
+# Callback when a message is received
 def on_message(client, userdata, msg):
-    print(msg.topic + " \n " + msg.payload.decode("utf-8") + " \n ")
+    print(msg.payload.decode())
 
-client = mqtt.Client()
+# Create an MQTT client
+client = mqtt.Client(client_id)
+
+# Set callbacks
 client.on_connect = on_connect
 client.on_message = on_message
 
-client.connect("192.168.88.1", 1883, 60)
+# Connect to the MQTT broker
+client.connect(broker_address, port, 60)
 
+# Loop forever to handle incoming messages
 client.loop_forever()
