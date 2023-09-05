@@ -1,30 +1,49 @@
+import tkinter as tk
 import paho.mqtt.client as mqtt
 
-# MQTT broker settings
-broker_address = "mqtt.eclipse.org"
-port = 1883
+# MQTT settings
+broker_address = "mqtt.eclipse.org"  # Change to your MQTT broker address
+topic = "chatroom"
 
-# Unique client ID for each user
-client_id = "client2"
-
-# Callback when the client connects to the broker
+# MQTT callbacks
 def on_connect(client, userdata, flags, rc):
-    print("Connected with result code " + str(rc))
-    client.subscribe("chatroom")
+    client.subscribe(topic)
 
-# Callback when a message is received
-def on_message(client, userdata, msg):
-    print(msg.payload.decode())
+def on_message(client, userdata, message):
+    received_message = message.payload.decode()
+    chat_display.config(state=tk.NORMAL)
+    chat_display.insert(tk.END, f"Received: {received_message}\n")
+    chat_display.config(state=tk.DISABLED)
 
-# Create an MQTT client
-client = mqtt.Client(client_id)
+def send_message():
+    user_message = message_entry.get()
+    if user_message:
+        mqtt_client.publish(topic, user_message)
+        chat_display.config(state=tk.NORMAL)
+        chat_display.insert(tk.END, f"You: {user_message}\n")
+        chat_display.config(state=tk.DISABLED)
+        message_entry.delete(0, tk.END)
 
-# Set callbacks
-client.on_connect = on_connect
-client.on_message = on_message
+# MQTT client
+mqtt_client = mqtt.Client()
+mqtt_client.on_connect = on_connect
+mqtt_client.on_message = on_message
+mqtt_client.connect(broker_address, 1883, 60)
 
-# Connect to the MQTT broker
-client.connect(broker_address, port, 60)
+# Create GUI
+root = tk.Tk()
+root.title("MQTT Chat App")
 
-# Loop forever to handle incoming messages
-client.loop_forever()
+chat_display = tk.Text(root, state=tk.DISABLED, wrap=tk.WORD)
+chat_display.pack()
+
+message_entry = tk.Entry(root)
+message_entry.pack()
+
+send_button = tk.Button(root, text="Send", command=send_message)
+send_button.pack()
+
+# Start MQTT client loop
+mqtt_client.loop_start()
+
+root.mainloop()
