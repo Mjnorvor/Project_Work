@@ -50,8 +50,7 @@ message_entry = tk.Entry(root)
 message_entry.pack()
 
 send_button = tk.Button(root, text="Send", command=send_message)
-send_button.pack()
-
+send_button.pack(expand= True, fill='none')
 
 mqtt_client.loop_start()
 
